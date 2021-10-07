@@ -2,39 +2,28 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const util = require('util');
-// Helper method for generating unique ids
-const uuid = require('./helpers/uuid');
+const uuid = require('./helpers/uuid'); // Helper method for generating unique ids
 const notesFile = require('./db/db.json')
-
 const PORT = process.env.PORT || 3001;
 const readFromFile = util.promisify(fs.readFile);
-
 const app = express();
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(express.static('public'));
-// html routes
-app.get('/', (req, res) =>
-    res.sendFile(path.join(__dirname, '/public/index.html'))
-);
-
+// get request for note routes
 app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, '/public/notes.html'))
-}
-);
-
-// api routes
+});
+// get request for api routes
 app.get('/api/notes', (req, res) => {
     readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)));
 });
-
+// function to write data to the json file 
 const writeToFile = (destination, content) =>
-  fs.writeFile(destination, JSON.stringify(content, null, 4), (err) =>
-    err ? console.error(err) : console.info(`\nData written to ${destination}`)
-  );
-
+    fs.writeFile(destination, JSON.stringify(content, null, 4), (err) =>
+        err ? console.error(err) : console.info(`\nData written to ${destination}`)
+    );
+// function to read data from json file
 const readAndAppend = (content, file) => {
     fs.readFile(file, 'utf8', (err, data) => {
         if (err) {
@@ -46,47 +35,37 @@ const readAndAppend = (content, file) => {
         }
     });
 };
-
+// post route for new note submission
 app.post('/api/notes', (req, res) => {
-    console.info(`${req.method} request received to add a tip`);
-
     const { title, text } = req.body;
-
     if (req.body) {
         const newNote = {
             title,
             text,
             id: uuid(),
         };
-
         readAndAppend(newNote, './db/db.json');
-        res.json(`Tip added successfully`);
+        res.json(`Note added successfully`);
     } else {
-        res.error('Error in adding tip');
+        res.error('Error in adding note');
     }
 });
-
-
-// app.delete(`/api/notes/:id`, (req, res) => {
-//     res.sendFile(path.join(__dirname, '/public/db/db.json'))
-//     res.send("delete request")
-//     const idNum = req.params.id
-//     const deleteButton = notesFile.remove({id, idNum})
-
-//     Promise.all([deleteButton]).then(result => {
-//         console.log(result);
-//         res.status(200).json({
-//             message: 'deleted',
-//         });
-//     }).catch(err => {
-//         console.error(err);
-//         res.status(500).json({
-//             error: err
-//         });
-
-
-// })})
-
+// delete route to delete a note
+app.delete(`/api/notes/:id`, (req, res) => {
+    for (let index = 0; index < notesFile.length; index++) {
+        if (notesFile[index].id === req.params.id) {
+            notesFile.splice(index, 1)
+            break;
+        }
+    }
+    writeToFile("./db/db.json", notesFile); // re-writes file with deleted note gone
+    res.json(notesFile)
+})
+// get request returns html file 
+app.get('*', (req, res) =>
+    res.sendFile(path.join(__dirname, '/public/index.html'))
+);
+// listens for server port location 
 app.listen(PORT, () =>
     console.log(`App listening at http://localhost:${PORT} `)
 );
