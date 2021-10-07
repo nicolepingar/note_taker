@@ -4,6 +4,7 @@ const fs = require('fs');
 const util = require('util');
 // Helper method for generating unique ids
 const uuid = require('./helpers/uuid');
+const notesFile = require('./db/db.json')
 
 const PORT = process.env.PORT || 3001;
 const readFromFile = util.promisify(fs.readFile);
@@ -23,9 +24,9 @@ app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, '/public/notes.html'))
 }
 );
+
 // api routes
 app.get('/api/notes', (req, res) => {
-    console.info(`${req.method} request received for tips`);
     readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)));
 });
 
@@ -65,6 +66,26 @@ app.post('/api/notes', (req, res) => {
     }
 });
 
+
+// app.delete(`/api/notes/:id`, (req, res) => {
+//     res.sendFile(path.join(__dirname, '/public/db/db.json'))
+//     res.send("delete request")
+//     const idNum = req.params.id
+//     const deleteButton = notesFile.remove({id, idNum})
+
+//     Promise.all([deleteButton]).then(result => {
+//         console.log(result);
+//         res.status(200).json({
+//             message: 'deleted',
+//         });
+//     }).catch(err => {
+//         console.error(err);
+//         res.status(500).json({
+//             error: err
+//         });
+
+
+// })})
 
 app.listen(PORT, () =>
     console.log(`App listening at http://localhost:${PORT} `)
