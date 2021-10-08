@@ -54,8 +54,6 @@ app.post('/api/notes', (req, res) => {
         res.error('Error in adding note');
     }
 });
-
-
 // delete route to delete a note
 app.delete(`/api/notes/:id`, (req, res) => {
     for (let index = 0; index < notesArray.length; index++) {
@@ -64,8 +62,8 @@ app.delete(`/api/notes/:id`, (req, res) => {
             break;
         }
     }
-    writeToFile("./db/db.json", notesFile); // re-writes file with deleted note gone
-    res.json(notesFile)
+    writeToFile("./db/db.json", notesArray); // re-writes file with deleted note gone
+    res.json(notesArray)
 })
 // get request returns html file 
 app.get('*', (req, res) =>
