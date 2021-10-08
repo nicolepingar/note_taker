@@ -10,6 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
+const notesArray = []
 // get request for note routes
 app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, '/public/notes.html'))
@@ -35,6 +36,7 @@ const readAndAppend = (content, file) => {
         }
     });
 };
+
 // post route for new note submission
 app.post('/api/notes', (req, res) => {
     const { title, text } = req.body;
@@ -45,16 +47,20 @@ app.post('/api/notes', (req, res) => {
             id: uuid(),
         };
         readAndAppend(newNote, './db/db.json');
+        notesArray.push(newNote)
+        console.log(notesArray);
         res.json(`Note added successfully`);
     } else {
         res.error('Error in adding note');
     }
 });
+
+
 // delete route to delete a note
 app.delete(`/api/notes/:id`, (req, res) => {
-    for (let index = 0; index < notesFile.length; index++) {
-        if (notesFile[index].id === req.params.id) {
-            notesFile.splice(index, 1)
+    for (let index = 0; index < notesArray.length; index++) {
+        if (notesArray[index].id === req.params.id) {
+            notesArray.splice(index, 1)
             break;
         }
     }
