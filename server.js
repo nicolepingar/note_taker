@@ -48,7 +48,6 @@ app.post('/api/notes', (req, res) => {
         };
         readAndAppend(newNote, './db/db.json');
         notesArray.push(newNote)
-        console.log(notesArray);
         res.json(`Note added successfully`);
     } else {
         res.error('Error in adding note');
