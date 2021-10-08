@@ -36,7 +36,6 @@ const readAndAppend = (content, file) => {
         }
     });
 };
-
 // post route for new note submission
 app.post('/api/notes', (req, res) => {
     const { title, text } = req.body;
